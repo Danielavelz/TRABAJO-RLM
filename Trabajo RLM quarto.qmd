@@ -1,0 +1,400 @@
+---
+title: "ANÁLISIS DE LA FLUCTUACIÓN DE PRECIOS EN EL MERCADO DE VEHÍCULOS USADOS"
+author: 
+  - name: "Maria Camila Toro Durán"
+  - name: "Liz Dayana Rojas Cortés"
+  - name: "Alexandra Daniela Velez De La Hoz"
+lang : es  
+format:
+  html:
+    toc: true 
+    toc-location: left 
+editor: visual
+theme: slate
+number-sections: true
+---
+
+## OBJETIVO GENERAL
+
+### ¿Cuáles son los factores más influyentes en la variación de precios dentro del mercado de autos de segunda mano?
+
+para que un auto mantenga su valor en el mercado y no se devalúe tan rápidamente, es importante que tenga un historial de mantenimiento sólido, bajo kilometraje, buen estado general y características que sean valoradas por los compradores de autos usados. Además, la demanda en el mercado y la reputación de la marca/modelo también pueden jugar un papel importante.
+
+Evaluar las caracteristicas mas importantes en la variación de precios dentro del mercado de autos de segunda mano con el fin de comprender mejor las dinámicas que afectan la valoración de los vehículos usados y proporcionar insights para mejorar la toma de decisiones tanto para compradores como vendedores
+
+## OBJETIVOS ESPECIFICOS
+
+### 1.¿Cómo impacta en el precio del auto los kilometros que tenga recorridos en los años de uso?
+
+identificar las razones por las cuales los automóviles con una cantidad de kilometros recorridos mas alto tienen un valor de reventa más bajo,en comparación con los autos que no tienen tanto desgaste,
+
+### 2.¿El número de propietarios anteriores influye en la percepción del valor del automóvil?
+
+identificar patrones de comportamiento del mercado y percepciones de los consumidores en relación con el historial de propiedad del automóvil
+
+```{r setup, include=FALSE}
+options(scipen=999)
+```
+
+```{r}
+#| echo: false
+library(readxl)
+Car <- read_excel("C:/Users/usuaria/OneDrive/Escritorio/DISEÑO/RLM/Car.xlsx")
+View(Car)
+
+```
+
+## INTRODUCCIÓN
+
+En un sistema de carros usados, la demanda de vehículos es esencial tanto para vendedores como compradores. Esta demanda está influenciada por factores como la economía, las tendencias del mercado y las preferencias del consumidor. Para abordar este problema, se han utilizado herramientas como modelos de regresión, minería de datos, aprendizaje automático y análisis de series temporales. Estas herramientas ayudan a comprender cómo diferentes variables afectan los precios de venta y a predecir la demanda futura, lo que proporciona una base sólida para entender y abordar la complejidad de la demanda de carros usados en sistemas de mercado.
+
+![Caracteristicas a tener en cuenta](imagenes/introduccion.png){#fig-RH}
+
+### Clasificacion de las variables
+
+-   selling_price : variable cuantitativa continua
+-   km_driven : variable cuantitativa continua
+-   Year : variable cuantitativa discreta
+-   mileage : variable cuantitativa continua
+-   engine : variable cuantitativa continua
+-   max_power : variable cuantitativa continua
+-   seats : variable cuantitativa discreta
+-   fuel : Variable cualitativa nominal
+-   name : Variable cualitativa nominal
+-   seller_type : Variable cualitativa nominal
+-   transmission : Variable cualitativa nominal
+-   owner : Variable cualitativa ordinal
+
+```{r}
+#| echo: false
+library(skimr)
+skim(Car)
+
+```
+
+Las tablas proporcionan información detallada sobre cada variable. Muestra el nombre de la variable y luego calcula diversas medidas descriptivas para cada una, como el promedio, la desviación estándar y otras estadísticas que ayudan a comprender mejor cómo se distribuyen y qué tan dispersos están los datos. Es una forma de explorar y comprender cada variable por separado antes de realizar un análisis más profundo.
+
+## ANÁLISIS EXPLORATORIO
+
+```{r}
+#| echo: false
+library(readxl)
+Car <- read_excel("C:/Users/usuaria/OneDrive/Escritorio/DISEÑO/RLM/Car.xlsx")
+View(Car)
+
+```
+
+```{r}
+#| echo: false
+datos_combinados<-c(Car$year,Car$selling_price)
+media_combinada1<-mean(datos_combinados)
+
+
+datos_combinados<-c(Car$km_driven,Car$selling_price)
+media_combinada2<-mean(datos_combinados)
+
+
+
+```
+
+Los datos que se analizarán corresponden a `r nrow(Car)`, datos que brindan informacion que permitirá analizar el comportamiento del precio de un auto en base a sus caracteristicas, como es el caso de la comparacion que se ve con el modelo del auto, el cual tiene un promedio `r round(mean(media_combinada1),2)` y `r round(mean(media_combinada2),2)` que nos brinda un promedio cuando comparamos los kilometros recorridos que tiene el carro con su precio.Además,para tener mas herramientas que permitan tomar la decisión del precio del auto segun sus caracteristicas se presentan las sisguientes tablas que nos relacionan esas caracteristicas con su precio:
+
+```{r}
+#| echo: false
+datos_combinados<-c(Car$mileage,Car$selling_price)
+media_combinada<-mean(datos_combinados)
+summary(datos_combinados)
+```
+
+Combustible que consume comparado con precio
+
+```{r}
+#| echo: false
+datos_combinados<-c(Car$engine,Car$selling_price)
+media_combinada<-mean(datos_combinados)
+summary(datos_combinados)
+```
+
+Motor del auto comparado con el precio
+
+```{r}
+#| echo: false
+datos_combinados<-c(Car$max_power,Car$selling_price)
+media_combinada<-mean(datos_combinados)
+summary(datos_combinados)
+```
+
+Potencia máxima con respecto al precio
+
+```{r}
+#| echo: false
+datos_combinados<-c(Car$seats,Car$selling_price)
+media_combinada<-mean(datos_combinados)
+summary(datos_combinados)
+```
+
+Asientos del auto comparado con el precio
+
+```{r}
+#| echo: false
+tapply(Car$selling_price, Car$fuel, summary)
+```
+
+Tipo de combustible comparado con el precio
+
+```{r}
+#| echo: false
+tapply(Car$selling_price, Car$seller_type, summary)
+```
+
+Vendedor comparado con el precio del auto
+
+```{r}
+#| echo: false
+tapply(Car$selling_price, Car$transmission, summary)
+```
+
+Transmisón con respecto al precio del caroo
+
+```{r}
+#| echo: false
+tapply(Car$selling_price, Car$owner, summary)
+```
+
+A continuación se presentan más caracteristicas de interes para poder decidir el precio del auto, las cuales se relacionaran en graficos de dispresion y boxplot.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: imagen1
+#| fig-cap: Diagramas de dispersión y boxplot  que nos va a relacionar la variable dependiente con las independientes cuantitativas y cualitativas.
+#| fig-subcap: 
+#| - "Diagrama de dispersión de precio y modelo del auto"
+#| - "Diagrama de dispersion de precio y kilometros recorridos"
+#| - "Diagrama de dispersion de precio y combustible que consume por galon"
+#| - "Diagrama de dispersion de precio y motor del auto"
+#| - "Diagrama de dispersion de precio y potencia máxima"
+#| - "Diagrama de dispersion de precio y asientos"
+#| - "Diagrama de boxplot de precio y tipo de combustible del auto"
+#| - "Diagrama de boxplot de precio y vendedor"
+#| - "Diagrama de boxplot de precio y transmision"
+#| - "Diagrama de boxplot de precio y dueños"
+#| layout-ncol: 2
+
+library(ggplot2)
+ggplot(Car,aes(x=year, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'red') +
+  xlab("Modelo") +
+  ylab("Precio")
+
+ggplot(Car,aes(x=km_driven, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'green') +
+  xlab("Kilometros recorridos") +
+  ylab("Precio")
+
+ggplot(Car,aes(x=mileage, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'purple') +
+  xlab("combustible consumido") +
+  ylab("Precio")
+
+ggplot(Car,aes(x=engine, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'pink') +
+  xlab("Motor") +
+  ylab("Precio")
+
+ggplot(Car,aes(x=max_power, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'purple') +
+  xlab("Potencia maxima") +
+  ylab("Precio")
+
+ggplot(Car,aes(x=seats, y=Car$selling_price)) +
+  geom_point(shape=6,size =4, colour = 'red') +
+  xlab("Asientos") +
+  ylab("Precio")
+
+ggplot(Car, aes(x =fuel   , y = selling_price )) +
+  geom_boxplot(shape = 1, size = 0, alpha = 0.2, colour="purple")
+
+ggplot(Car, aes(x =seller_type   , y = selling_price )) +
+  geom_boxplot(shape = 1, size = 0, alpha = 0.2, colour="blue")
+
+ggplot(Car, aes(x =transmission   , y = selling_price )) +
+  geom_boxplot(shape = 1, size = 0, alpha = 0.2, colour="yellow")
+
+ggplot(Car, aes(x =owner   , y = selling_price )) +
+  geom_boxplot(shape = 1, size = 0, alpha = 0.2, colour="orange")
+
+
+```
+
+para poder realizar el analisis exploratorio decidimos implementar una comparación entre la variable independiente con las demás, buscando conocer como podría comportarse el precio del auto con respecto a cada una de las variables que suponemos lo definen.
+
+## PASO A PASO PARA AJUSTAR EL MODELO
+
+Comenzamos con un primer modelo usando todas las variables. Al revisarlo, encontramos que algunas no eran importantes. Así que para el segundo modelo, las eliminamos. Luego, intentamos validar el segundo modelo, pero no cumplió con los criterios necesarios. Entonces, probamos aplicar un logaritmo a las variables, pero eso tampoco funcionó. Intentamos otra transformación elevando las variables al cuadrado, pero tampoco mejoró. Decidimos quedarnos con el segundo modelo porque tenía el R\^2 más alto.
+
+En este modelo, identificamos puntos de influencia y notamos que al eliminar los valores atípicos, el R\^2 mejoraba. Repetimos este proceso cuatro veces y descubrimos que la variable de "asientos" no era significativa. Creamos un nuevo modelo sin esta variable. Sin embargo, al validar este nuevo modelo, tampoco cumplió con los criterios. Finalmente, decidimos quedarnos con el último modelo, llamado "m9", aunque sabíamos que no sería exacto para predecir la problematica original.
+
+```{r}
+#| echo: false
+library(ggcorrplot)
+reduced_data <- subset(Car, select = -c(selling_price, fuel, seller_type, transmission, owner, name))
+corr_matrix <- round(cor(reduced_data), 2)
+ggcorrplot(corr_matrix, hc.order = TRUE, type = "lower",
+           lab = TRUE)
+
+#| echo: false
+library(car)
+
+#MODELO
+m1 <-lm(data = Car, selling_price ~ year + fuel + seller_type + transmission + km_driven + mileage + engine + 
+          max_power + seats + owner)
+summary(m1)
+m2 <-lm(data = Car, selling_price ~ year + km_driven + engine + seats + mileage + owner)
+summary(m2)
+vif(m2)
+#Varianza constante
+anova(m2)
+library(lmtest)
+bptest(m2)
+#No hay varianza constante
+
+#Normalidad
+Car$residual <- rstandard(m2)
+residuales <- Car$residual
+library(tseries)
+jarque.bera.test(Car$residual)
+#No hay normalidad
+
+#Independencia
+dwtest(m2)
+#No son independientes. 
+
+m3 <-lm(data = Car, log(selling_price) ~ log(year) + log(km_driven) + log(engine) + log(seats))
+summary(m3)
+dwtest(m3)
+
+m4 <- lm(data = Car, (selling_price)^2 ~ (year)^2+ (km_driven)^2 + (engine)^2 + (seats)^2)
+summary(m4)
+dwtest(m1)
+plot(residuals(m2), pch=19, col="deepskyblue1")
+
+#Se calculan los puntos de influencia
+library(olsrr)
+ols_step_forward_p(m2)
+
+
+#Puntos de influencia
+outlierTest(m2)
+
+#Medidas de influencia
+med_infl <- influence.measures(m2)
+
+# Identificación de filas con asterisco en puntos de influencia
+filas_eliminar <- which(apply(med_infl$is.inf, 1, any))
+
+# Nueva base de datos LifeCycleSavings sin puntos de influencia
+Car_nueva <- Car[-filas_eliminar,]
+
+
+
+m5 <-lm(data = Car_nueva, selling_price ~ year + km_driven + engine + seats + mileage + owner)
+summary(m5)
+
+outlierTest(m5)
+qqPlot(residuals(m5))
+
+#Medidas d einfluencia
+med_infl <- influence.measures(m5)
+
+# Identificación de filas con asterisco en puntos de influencia
+filas_eliminar <- which(apply(med_infl$is.inf, 1, any))
+
+# Nueva base de datos LifeCycleSavings sin puntos de influencia
+Car_nueva2<- Car_nueva[-filas_eliminar,]
+
+m6 <-lm(data = Car_nueva2, selling_price ~ year + km_driven + engine + seats + mileage + owner)
+summary(m6)
+
+outlierTest(m6)
+qqPlot(residuals(m6))
+
+#Medidas d einfluencia
+med_infl <- influence.measures(m6)
+
+# Identificación de filas con asterisco en puntos de influencia
+filas_eliminar <- which(apply(med_infl$is.inf, 1, any))
+
+# Nueva base de datos LifeCycleSavings sin puntos de influencia
+Car_nueva3<- Car_nueva2[-filas_eliminar,]
+
+m7 <-lm(data = Car_nueva3, selling_price ~ year + km_driven + engine + seats + mileage + owner)
+summary(m7)
+
+outlierTest(m7)
+qqPlot(residuals(m7))
+
+#Medidas d einfluencia
+med_infl <- influence.measures(m7)
+
+# Identificación de filas con asterisco en puntos de influencia
+filas_eliminar <- which(apply(med_infl$is.inf, 1, any))
+
+# Nueva base de datos LifeCycleSavings sin puntos de influencia
+Car_nueva4<- Car_nueva3[-filas_eliminar,]
+
+m8 <-lm(data = Car_nueva4, selling_price ~ year + km_driven + engine + seats + mileage + owner)
+summary(m8)
+
+outlierTest(m8)
+qqPlot(residuals(m8))
+
+jarque.bera.test(Car_nueva4$residual)
+
+#Varianza constante
+anova(m8)
+library(lmtest)
+bptest(m8)
+#Eliminé datos hasta que ya no tuviera tantos puntos de influencia
+#y este fue el modelo que resultó
+m9 <-lm(data = Car_nueva4, selling_price ~ year + km_driven + engine + mileage + owner)
+summary(m9)
+#Varianza constante
+anova(m9)
+library(lmtest)
+bptest(m9)
+#No hay varianza constante
+
+#Normalidad
+Car_nueva4$residual <- rstandard(m9)
+residuales <- Car_nueva4$residual
+library(tseries)
+jarque.bera.test(Car_nueva4$residual)
+#No hay normalidad
+
+#Independencia
+dwtest(m9)
+#No son independientes.
+```
+
+## RESULTADOS
+
+### Objetivo general
+
+Año (Year): Los autos más nuevos tienden a tener precios más altos, ya que los consumidores valoran la mayor confiabilidad, tecnología actualizada y menor desgaste asociados con vehículos recientes. Kilómetros conducidos (Km_driven): A medida que aumenta el kilometraje, el precio de venta tiende a disminuir, ya que los consumidores prefieren autos con menos desgaste y mayor vida útil percibida. Tamaño del motor (Engine): Los autos con motores más grandes suelen tener precios más altos, ya que lo En resumen, en el mercado de autos usados, factores como el año de fabricación, el kilometraje, el tamaño del motor y la eficiencia en el consumo de combustible pueden ser determinantes en la variación de precios y afectar las decisiones de compra de los consumidores. Los consumidores suelen valorar la confiabilidad, el rendimiento, la eficiencia y el valor percibido del automóvil al tomar decisiones de compra en el mercado de autos usados.
+
+## Objetivos especificos
+
+### 1.n auto que ha recorrido una mayor distancia en menos años puede tener un precio más bajo en comparación con otro que ha recorrido la misma distancia pero en más años.
+
+La salida del modelo de regresión lineal muestra que el kilometraje recorrido está inversamente relacionado con el precio de venta de los automóviles usados: a medida que aumenta el kilometraje, el precio tiende a disminuir. Esta relación sugiere que los consumidores valoran los autos con menos kilómetros, ya que los perciben como menos desgastados y potencialmente más duraderos. En pocas palabras, el kilometraje es un factor determinante en las decisiones de compra, influyendo en la percepción de confiabilidad y valor del automóvil en el mercado de autos usados. Los autos con menos kilómetros son preferidos debido a su menor desgaste percibido y mayor confiabilidad, lo que se traduce en un impacto directo en su precio.
+
+## 2.¿El número de propietarios anteriores influye en la percepción del valor del automóvil?
+
+El número de propietarios anteriores tiene un impacto significativo en el valor del automóvil, según la salida del modelo de regresión lineal. Los coeficientes asociados a las variables de "owner" muestran que los autos con un segundo propietario tienden a tener un precio de venta más bajo en el mercado de autos usados en comparación con aquellos con un solo propietario. Esta tendencia sugiere que los consumidores evalúan los autos con múltiples propietarios como menos valiosos, posiblemente debido a inquietudes sobre el historial de mantenimiento o el desgaste acumulado. Por lo tanto, el número de propietarios anteriores es un factor clave que afecta al valor percibido y, por consiguiente, al precio de los automóviles usados.
+
+## CONCLUSIÓN
+
+Los principales hallazgos que pudimos observar es que variables como el año, kilometraje recorrido, motor, potencia maxima y los propietarios anteriores del auto tienen un impacto significativo para definir el valor del carro, sin embargo, estos resultados no se consideran exactos ya que ningún modelo cumplió con los tres criterios de validación.
+
+
