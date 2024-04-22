@@ -12,6 +12,8 @@ format:
 editor: visual
 theme: slate
 number-sections: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## OBJETIVO GENERAL
@@ -38,8 +40,7 @@ options(scipen=999)
 
 ```{r}
 #| echo: false
-library(readxl)
-Car <- read_excel("C:/Users/usuaria/OneDrive/Escritorio/DISEÑO/RLM/Car.xlsx")
+Car <- read.csv("https://raw.githubusercontent.com/Danielavelz/TrabajoRLM/main/Car.csv", sep = ";")
 View(Car)
 
 ```
@@ -78,9 +79,9 @@ Las tablas proporcionan información detallada sobre cada variable. Muestra el n
 
 ```{r}
 #| echo: false
-library(readxl)
-Car <- read_excel("C:/Users/usuaria/OneDrive/Escritorio/DISEÑO/RLM/Car.xlsx")
+Car <- read.csv("https://raw.githubusercontent.com/Danielavelz/TrabajoRLM/main/Car.csv", sep = ";", dec = ",")
 View(Car)
+
 
 ```
 
@@ -396,5 +397,3 @@ El número de propietarios anteriores tiene un impacto significativo en el valor
 ## CONCLUSIÓN
 
 Los principales hallazgos que pudimos observar es que variables como el año, kilometraje recorrido, motor, potencia maxima y los propietarios anteriores del auto tienen un impacto significativo para definir el valor del carro, sin embargo, estos resultados no se consideran exactos ya que ningún modelo cumplió con los tres criterios de validación.
-
-
